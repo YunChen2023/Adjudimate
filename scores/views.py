@@ -42,7 +42,7 @@ class ScoreEachEntryView(APIView):
 
 
 class CommentEachEntryView(APIView):
-    def post(self, request):
+    def put(self, request):
         comment_text = request.data.get('comment')
         event_id = request.data.get('event_id')
         entry_id = request.data.get('entry_id')
@@ -52,18 +52,20 @@ class CommentEachEntryView(APIView):
             event = get_object_or_404(Event, pk=event_id)
             entry = get_object_or_404(Entry, pk=entry_id)
             user = get_object_or_404(User, pk=user_id) 
-            criterion = Criterion.objects.first()           
-            comment, created = Score.objects.get_or_create(
-                comment=comment_text, 
-                event=event, 
-                entry=entry, 
-                user=user,
-                criterion=criterion               
-            )
+            criteria = Criterion.objects.filter(event_id=event_id)
+            
+            for criterion in criteria: 
+                comment, created = Score.objects.update_or_create(
+                    event=event, 
+                    entry=entry, 
+                    user=user,
+                    criterion=criterion,
+                    defaults={'comment': comment_text}              
+                )
             if created:
                 return Response({'message': 'Comment saved successfully!'}, status=201)
             else:
-                return Response({'message': 'This record already exists!'}, status=200)
+                return Response({'message': 'Comment updated successfully!'}, status=200)
         else:
             return Response({'error': 'All fields are required!'}, status=400)
         

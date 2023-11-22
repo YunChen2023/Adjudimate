@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from .models import Participant
 from .serializers import ParticipantSerializer
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 
 
 class ParticipantView(APIView):
@@ -39,12 +40,17 @@ class ParticipantView(APIView):
         participant_id = request.data.get('participant_id')
         password = request.data.get('password')
 
-        try:
-            participant = Participant.objects.get(participant_id=participant_id, password=password)
-        except Participant.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        participants = Participant.objects.filter(participant_id=participant_id)
+        if not participants.exists():
+            return Response({'error': 'Participant not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        participant = participants.filter(password=password).first()
+        if not participant:
+            return Response({'error': 'Incorrect password, unable to delete the account'}, status=status.HTTP_400_BAD_REQUEST)
 
         participant.delete()
         return Response({'message': 'Participant deleted successfully'}, status=status.HTTP_204_NO_CONTENT)
+
+
 
 

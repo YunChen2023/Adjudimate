@@ -81,7 +81,7 @@ class AddModelsView(APIView):
         entry.models_name = models_name
         entry.save()
 
-        return Response({'message': f'Successfully added models_name to entry {entry_id}'}, status=status.HTTP_200_OK)
+        return Response({'message': f'Successfully added model to entry {entry_id}'}, status=status.HTTP_200_OK)
 
 
 class EntryView(APIView):

@@ -8,8 +8,8 @@ from django.shortcuts import get_object_or_404
 
 class LoginView(APIView):
     def get(self, request):
-        email_address = request.data.get('email_address')
-        password = request.data.get('password')
+        email_address = request.query_params.get('email_address')
+        password = request.query_params.get('password')
         
         with connection.cursor() as cursor:
             # Check users_user table
@@ -27,6 +27,7 @@ class LoginView(APIView):
                 return Response({'message': 'Login successfully!', 'participant_id': row[0], 'participant_role': row[1]}, status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid Email or Password!'}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserView(APIView):
     def get(self, request):
